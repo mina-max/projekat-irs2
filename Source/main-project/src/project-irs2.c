@@ -6,12 +6,9 @@
  */
 
 #include "main.h"
-
+#include "display.h"
 
 void project_main(void)
 {
-	while(1)
-	{
-
-	}
+	display_init();
 }
