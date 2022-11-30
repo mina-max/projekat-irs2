@@ -11,6 +11,7 @@
 #include "FreeRTOS.h"
 #include "timers.h"
 #include "task.h"
+#include "seven_segment_display.h"
 
 
 #define WELCOME_SCREEN_TIMER_MS 3000
@@ -27,7 +28,7 @@ static void show_welcome_screen()
 	ssd1306_Fill(Black);
 	ssd1306_DrawBitmap(0, 0, snake_128x64, 128, 64, White);
 	ssd1306_UpdateScreen();
-	xTimerStart(welcome_screen_timer, 0);
+	//xTimerStart(welcome_screen_timer, 0);
 }
 
 static void show_start_game_screen()
@@ -95,6 +96,7 @@ static void state_machine_dynamic()
 		break;
 	}
 }
+int cnt = 0;
 
 void vDisplayTask()
 {
@@ -114,24 +116,29 @@ void vDisplayTask()
 
 		}
 
+		display_number(cnt);
+
 	}
 }
-
 void display_state_button_pressed()
 {
 	if(display_state == DISPLAY_STATE_START_GAME)
 	{
 		new_display_state = DISPLAY_STATE_GAME;
 	}
+	cnt++;
 }
 
 
 void display_init()
 {
-	welcome_screen_timer = xTimerCreate((const char*) "welcome_screen_timer",
-		WELCOME_SCREEN_TIMER_MS / portTICK_RATE_MS,
-		pdFALSE, (void*) 0, welcome_screen_timer_callback);
+//	welcome_screen_timer = xTimerCreate((const char*) "welcome_screen_timer",
+//		WELCOME_SCREEN_TIMER_MS / portTICK_RATE_MS,
+//		pdFALSE, (void*) 0, welcome_screen_timer_callback);
+
+	button_init();
 
 	xTaskCreate(vDisplayTask, "display_task", configMINIMAL_STACK_SIZE, NULL,
 			(tskIDLE_PRIORITY + 1UL), NULL);
+
 }
