@@ -24,9 +24,9 @@ typedef struct
 	GPIO_PinState e;
 	GPIO_PinState f;
 	GPIO_PinState g;
-} digit_gpios_t;
+} digit_to_gpio_t;
 
-static const digit_gpios_t digits[_NUM_OF_DIGITS] =
+static const digit_to_gpio_t digits_to_gpios[_NUM_OF_DIGITS] =
 {
 		[ZERO] 	= { .a = GPIO_PIN_RESET, .b = GPIO_PIN_RESET, .c = GPIO_PIN_RESET, .d = GPIO_PIN_RESET, .e = GPIO_PIN_RESET, .f = GPIO_PIN_RESET, .g = GPIO_PIN_SET },
 		[ONE] 	= { .a = GPIO_PIN_SET, 	 .b = GPIO_PIN_RESET, .c = GPIO_PIN_RESET, .d = GPIO_PIN_SET, 	.e = GPIO_PIN_SET, 	 .f = GPIO_PIN_SET,   .g = GPIO_PIN_SET },
@@ -42,14 +42,14 @@ static const digit_gpios_t digits[_NUM_OF_DIGITS] =
 
 static void set_digit_gpios(digits_t digit)
 {
-	digit_gpios_t digit_gpios = digits[digit];
-	HAL_GPIO_WritePin(SA_GPIO_Port, SA_Pin, digit_gpios.a);
-	HAL_GPIO_WritePin(SB_GPIO_Port, SB_Pin, digit_gpios.b);
-	HAL_GPIO_WritePin(SC_GPIO_Port, SC_Pin, digit_gpios.c);
-	HAL_GPIO_WritePin(SD_GPIO_Port, SD_Pin, digit_gpios.d);
-	HAL_GPIO_WritePin(SE_GPIO_Port, SE_Pin, digit_gpios.e);
-	HAL_GPIO_WritePin(SF_GPIO_Port, SF_Pin, digit_gpios.f);
-	HAL_GPIO_WritePin(SG_GPIO_Port, SG_Pin, digit_gpios.g);
+	digit_to_gpio_t digit_to_gpio = digits_to_gpios[digit];
+	HAL_GPIO_WritePin(SA_GPIO_Port, SA_Pin, digit_to_gpio.a);
+	HAL_GPIO_WritePin(SB_GPIO_Port, SB_Pin, digit_to_gpio.b);
+	HAL_GPIO_WritePin(SC_GPIO_Port, SC_Pin, digit_to_gpio.c);
+	HAL_GPIO_WritePin(SD_GPIO_Port, SD_Pin, digit_to_gpio.d);
+	HAL_GPIO_WritePin(SE_GPIO_Port, SE_Pin, digit_to_gpio.e);
+	HAL_GPIO_WritePin(SF_GPIO_Port, SF_Pin, digit_to_gpio.f);
+	HAL_GPIO_WritePin(SG_GPIO_Port, SG_Pin, digit_to_gpio.g);
 }
 
 static void set_select_ones_digit()
@@ -64,7 +64,7 @@ static void set_select_tens_digit()
 	HAL_GPIO_WritePin(SEL2_GPIO_Port, SEL2_Pin, GPIO_PIN_SET);
 }
 
-void display_number(uint8_t num)
+void seven_seg_display_number(uint8_t num)
 {
 	uint8_t ones_digit = 0;
 	uint8_t tens_digit = 0;

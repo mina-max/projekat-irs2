@@ -14,7 +14,7 @@ static xTimerHandle debouncing_timer = NULL;
 
 static void debouncing_timer_callback()
 {
-	display_state_button_pressed();
+	display_button_pressed();
 }
 
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)

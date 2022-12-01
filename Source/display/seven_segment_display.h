@@ -8,6 +8,6 @@
 #ifndef DISPLAY_SEVEN_SEGMENT_DISPLAY_H_
 #define DISPLAY_SEVEN_SEGMENT_DISPLAY_H_
 
-void display_number(uint16_t num);
+void seven_seg_display_number(uint16_t num);
 
 #endif /* DISPLAY_SEVEN_SEGMENT_DISPLAY_H_ */
