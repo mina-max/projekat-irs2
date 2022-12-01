@@ -28,7 +28,7 @@ static void show_welcome_screen()
 	ssd1306_Fill(Black);
 	ssd1306_DrawBitmap(0, 0, snake_128x64, 128, 64, White);
 	ssd1306_UpdateScreen();
-	//xTimerStart(welcome_screen_timer, 0);
+	xTimerStart(welcome_screen_timer, 0);
 }
 
 static void show_start_game_screen()
@@ -77,25 +77,6 @@ static void state_machine_update()
 	}
 }
 
-static void state_machine_dynamic()
-{
-	switch (display_state)
-	{
-	case DISPLAY_STATE_WELCOME:
-
-		break;
-	case DISPLAY_STATE_START_GAME:
-
-		break;
-	case DISPLAY_STATE_GAME:
-
-		break;
-	case DISPLAY_STATE_SCORE:
-		break;
-	default:
-		break;
-	}
-}
 int cnt = 0;
 
 void vDisplayTask()
@@ -110,7 +91,6 @@ void vDisplayTask()
 			state_machine_update();
 		}
 
-		//state_machine_dynamic();
 		if(display_state == DISPLAY_STATE_GAME)
 		{
 
@@ -132,11 +112,9 @@ void display_state_button_pressed()
 
 void display_init()
 {
-//	welcome_screen_timer = xTimerCreate((const char*) "welcome_screen_timer",
-//		WELCOME_SCREEN_TIMER_MS / portTICK_RATE_MS,
-//		pdFALSE, (void*) 0, welcome_screen_timer_callback);
-
-	button_init();
+	welcome_screen_timer = xTimerCreate((const char*) "welcome_screen_timer",
+		WELCOME_SCREEN_TIMER_MS / portTICK_RATE_MS,
+		pdFALSE, (void*) 0, welcome_screen_timer_callback);
 
 	xTaskCreate(vDisplayTask, "display_task", configMINIMAL_STACK_SIZE, NULL,
 			(tskIDLE_PRIORITY + 1UL), NULL);

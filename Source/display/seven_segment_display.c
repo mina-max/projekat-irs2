@@ -7,103 +7,83 @@
 
 #include "main.h"
 
-static void reset_seven_segment_display()
+#define DELAY_PWM 			8
+#define MAX_NUM_TWO_DIGITS	99
+
+typedef enum
+{
+	ZERO, ONE, TWO, THREE, FOUR, FIVE, SIX, SEVEN, EIGHT, NINE, _NUM_OF_DIGITS
+} digits_t;
+
+typedef struct
+{
+	GPIO_PinState a;
+	GPIO_PinState b;
+	GPIO_PinState c;
+	GPIO_PinState d;
+	GPIO_PinState e;
+	GPIO_PinState f;
+	GPIO_PinState g;
+} digit_gpios_t;
+
+static const digit_gpios_t digits[_NUM_OF_DIGITS] =
+{
+		[ZERO] 	= { .a = GPIO_PIN_RESET, .b = GPIO_PIN_RESET, .c = GPIO_PIN_RESET, .d = GPIO_PIN_RESET, .e = GPIO_PIN_RESET, .f = GPIO_PIN_RESET, .g = GPIO_PIN_SET },
+		[ONE] 	= { .a = GPIO_PIN_SET, 	 .b = GPIO_PIN_RESET, .c = GPIO_PIN_RESET, .d = GPIO_PIN_SET, 	.e = GPIO_PIN_SET, 	 .f = GPIO_PIN_SET,   .g = GPIO_PIN_SET },
+		[TWO] 	= { .a = GPIO_PIN_RESET, .b = GPIO_PIN_RESET, .c = GPIO_PIN_SET,   .d = GPIO_PIN_RESET, .e = GPIO_PIN_RESET, .f = GPIO_PIN_SET,   .g = GPIO_PIN_RESET },
+		[THREE] = { .a = GPIO_PIN_RESET, .b = GPIO_PIN_RESET, .c = GPIO_PIN_RESET, .d = GPIO_PIN_RESET, .e = GPIO_PIN_SET,   .f = GPIO_PIN_SET,   .g = GPIO_PIN_RESET },
+		[FOUR] 	= { .a = GPIO_PIN_SET, 	 .b = GPIO_PIN_RESET, .c = GPIO_PIN_RESET, .d = GPIO_PIN_SET, 	.e = GPIO_PIN_SET,	 .f = GPIO_PIN_RESET, .g = GPIO_PIN_RESET },
+		[FIVE] 	= { .a = GPIO_PIN_RESET, .b = GPIO_PIN_SET,   .c = GPIO_PIN_RESET, .d = GPIO_PIN_RESET, .e = GPIO_PIN_SET, 	 .f = GPIO_PIN_RESET, .g = GPIO_PIN_RESET },
+		[SIX] 	= { .a = GPIO_PIN_RESET, .b = GPIO_PIN_SET,   .c = GPIO_PIN_RESET, .d = GPIO_PIN_RESET, .e = GPIO_PIN_RESET, .f = GPIO_PIN_RESET, .g = GPIO_PIN_RESET },
+		[SEVEN] = { .a = GPIO_PIN_RESET, .b = GPIO_PIN_RESET, .c = GPIO_PIN_RESET, .d = GPIO_PIN_SET, 	.e = GPIO_PIN_SET, 	 .f = GPIO_PIN_SET,   .g = GPIO_PIN_SET },
+		[EIGHT] = { .a = GPIO_PIN_RESET, .b = GPIO_PIN_RESET, .c = GPIO_PIN_RESET, .d = GPIO_PIN_RESET, .e = GPIO_PIN_RESET, .f = GPIO_PIN_RESET, .g = GPIO_PIN_RESET },
+		[NINE] 	= { .a = GPIO_PIN_RESET, .b = GPIO_PIN_RESET, .c = GPIO_PIN_RESET, .d = GPIO_PIN_RESET, .e = GPIO_PIN_SET, 	 .f = GPIO_PIN_RESET, .g = GPIO_PIN_RESET },
+};
+
+static void set_digit_gpios(digits_t digit)
+{
+	digit_gpios_t digit_gpios = digits[digit];
+	HAL_GPIO_WritePin(SA_GPIO_Port, SA_Pin, digit_gpios.a);
+	HAL_GPIO_WritePin(SB_GPIO_Port, SB_Pin, digit_gpios.b);
+	HAL_GPIO_WritePin(SC_GPIO_Port, SC_Pin, digit_gpios.c);
+	HAL_GPIO_WritePin(SD_GPIO_Port, SD_Pin, digit_gpios.d);
+	HAL_GPIO_WritePin(SE_GPIO_Port, SE_Pin, digit_gpios.e);
+	HAL_GPIO_WritePin(SF_GPIO_Port, SF_Pin, digit_gpios.f);
+	HAL_GPIO_WritePin(SG_GPIO_Port, SG_Pin, digit_gpios.g);
+}
+
+static void set_select_ones_digit()
+{
+	HAL_GPIO_WritePin(SEL1_GPIO_Port, SEL1_Pin, GPIO_PIN_SET);
+	HAL_GPIO_WritePin(SEL2_GPIO_Port, SEL2_Pin, GPIO_PIN_RESET);
+}
+
+static void set_select_tens_digit()
 {
 	HAL_GPIO_WritePin(SEL1_GPIO_Port, SEL1_Pin, GPIO_PIN_RESET);
-	HAL_GPIO_WritePin(SEL2_GPIO_Port, SEL2_Pin, GPIO_PIN_RESET);
-	HAL_GPIO_WritePin(SA_GPIO_Port, SA_Pin, GPIO_PIN_RESET);
-	HAL_GPIO_WritePin(SB_GPIO_Port, SB_Pin, GPIO_PIN_RESET);
-	HAL_GPIO_WritePin(SC_GPIO_Port, SC_Pin, GPIO_PIN_RESET);
-	HAL_GPIO_WritePin(SD_GPIO_Port, SD_Pin, GPIO_PIN_RESET);
-	HAL_GPIO_WritePin(SE_GPIO_Port, SE_Pin, GPIO_PIN_RESET);
-	HAL_GPIO_WritePin(SF_GPIO_Port, SF_Pin, GPIO_PIN_RESET);
-	HAL_GPIO_WritePin(SG_GPIO_Port, SG_Pin, GPIO_PIN_RESET);
+	HAL_GPIO_WritePin(SEL2_GPIO_Port, SEL2_Pin, GPIO_PIN_SET);
 }
 
 void display_number(uint8_t num)
 {
-	uint8_t digit = 0;
+	uint8_t ones_digit = 0;
+	uint8_t tens_digit = 0;
 
-	if (num > 99)
+	if (num > MAX_NUM_TWO_DIGITS)
 	{
-		num = 99;
+		num = MAX_NUM_TWO_DIGITS;
 	}
 
-	int i = 0;
-	if(num == 0)
+	ones_digit = num % 10;
+	tens_digit = num / 10;
+
+	set_select_ones_digit();
+	set_digit_gpios(ones_digit);
+	HAL_Delay(DELAY_PWM);
+	if(num > 9)
 	{
-		HAL_GPIO_WritePin(SEL2_GPIO_Port, SEL2_Pin, GPIO_PIN_RESET);
-		HAL_GPIO_WritePin(SEL1_GPIO_Port, SEL1_Pin, GPIO_PIN_SET);
-		HAL_GPIO_WritePin(SG_GPIO_Port, SG_Pin, GPIO_PIN_SET);
+		set_select_tens_digit();
+		set_digit_gpios(tens_digit);
+		HAL_Delay(DELAY_PWM);
 	}
-	else
-	{
-		while (num)
-		{
-			reset_seven_segment_display();
-			if(i == 0)
-			{
-				HAL_GPIO_WritePin(SEL2_GPIO_Port, SEL2_Pin, GPIO_PIN_RESET);
-				HAL_GPIO_WritePin(SEL1_GPIO_Port, SEL1_Pin, GPIO_PIN_SET);
-				i++;
-			}
-			else
-			{
-				HAL_GPIO_WritePin(SEL1_GPIO_Port, SEL1_Pin, GPIO_PIN_RESET);
-				HAL_GPIO_WritePin(SEL2_GPIO_Port, SEL2_Pin, GPIO_PIN_SET);
-			}
-
-			digit = num % 10;
-			num /= 10;
-
-			switch (digit)
-			{
-			case 0:
-				HAL_GPIO_WritePin(SG_GPIO_Port, SG_Pin, GPIO_PIN_SET);
-				break;
-			case 1:
-				HAL_GPIO_WritePin(SA_GPIO_Port, SA_Pin, GPIO_PIN_SET);
-				HAL_GPIO_WritePin(SD_GPIO_Port, SD_Pin, GPIO_PIN_SET);
-				HAL_GPIO_WritePin(SE_GPIO_Port, SE_Pin, GPIO_PIN_SET);
-				HAL_GPIO_WritePin(SF_GPIO_Port, SF_Pin, GPIO_PIN_SET);
-				HAL_GPIO_WritePin(SG_GPIO_Port, SG_Pin, GPIO_PIN_SET);
-				break;
-			case 2:
-				HAL_GPIO_WritePin(SC_GPIO_Port, SC_Pin, GPIO_PIN_SET);
-				HAL_GPIO_WritePin(SF_GPIO_Port, SF_Pin, GPIO_PIN_SET);
-				break;
-			case 3:
-				HAL_GPIO_WritePin(SE_GPIO_Port, SE_Pin, GPIO_PIN_SET);
-				HAL_GPIO_WritePin(SF_GPIO_Port, SF_Pin, GPIO_PIN_SET);
-				break;
-			case 4:
-				HAL_GPIO_WritePin(SA_GPIO_Port, SA_Pin, GPIO_PIN_SET);
-				HAL_GPIO_WritePin(SD_GPIO_Port, SD_Pin, GPIO_PIN_SET);
-				HAL_GPIO_WritePin(SE_GPIO_Port, SE_Pin, GPIO_PIN_SET);
-				break;
-			case 5:
-				HAL_GPIO_WritePin(SB_GPIO_Port, SB_Pin, GPIO_PIN_SET);
-				HAL_GPIO_WritePin(SE_GPIO_Port, SE_Pin, GPIO_PIN_SET);
-				break;
-			case 6:
-				HAL_GPIO_WritePin(SB_GPIO_Port, SB_Pin, GPIO_PIN_SET);
-				break;
-			case 7:
-				HAL_GPIO_WritePin(SD_GPIO_Port, SD_Pin, GPIO_PIN_SET);
-				HAL_GPIO_WritePin(SE_GPIO_Port, SE_Pin, GPIO_PIN_SET);
-				HAL_GPIO_WritePin(SF_GPIO_Port, SF_Pin, GPIO_PIN_SET);
-				HAL_GPIO_WritePin(SG_GPIO_Port, SG_Pin, GPIO_PIN_SET);
-				break;
-			case 8:
-				break;
-			case 9:
-				HAL_GPIO_WritePin(SE_GPIO_Port, SE_Pin, GPIO_PIN_SET);
-				break;
-			default:
-				break;
-			}
-			HAL_Delay(10);
-		}
-	}
-
 }

@@ -7,8 +7,10 @@
 
 #include "main.h"
 #include "display.h"
+#include "button.h"
 
 void project_main(void)
 {
 	display_init();
+	button_init();
 }
