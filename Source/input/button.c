@@ -9,16 +9,58 @@
 #include "FreeRTOS.h"
 #include "timers.h"
 #include "stdbool.h"
+#include "snake.h"
 
 static xTimerHandle debouncing_timer = NULL;
 
+uint16_t pin = 0;
+
+static void button_pressed_start_game()
+{
+	game_start();
+}
+
+static void button_pressed_toggle_grid()
+{
+	game_toogle_grid();
+}
+
+static void button_pressed_change_snake_direction()
+{
+
+}
+
 static void debouncing_timer_callback()
 {
-	display_button_pressed();
+	if(pin == SW2_Pin)
+	{
+		button_pressed_start_game();
+	}
+	else if(pin == SW1_Pin)
+	{
+		button_pressed_toggle_grid();
+	}
+	else if(pin == UP_Pin)
+	{
+		snake_change_direction(UP);
+	}
+	else if(pin == RIGHT_Pin)
+	{
+		snake_change_direction(RIGHT);
+	}
+	else if(pin == DOWN_Pin)
+	{
+		snake_change_direction(DOWN);
+	}
+	else if(pin == LEFT_Pin)
+	{
+		snake_change_direction(LEFT);
+	}
 }
 
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
+	pin = GPIO_Pin;
 	xTimerStartFromISR(debouncing_timer, 0);
 }
 

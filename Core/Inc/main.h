@@ -57,6 +57,18 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
+#define DOWN_Pin GPIO_PIN_0
+#define DOWN_GPIO_Port GPIOC
+#define DOWN_EXTI_IRQn EXTI0_IRQn
+#define RIGHT_Pin GPIO_PIN_1
+#define RIGHT_GPIO_Port GPIOC
+#define RIGHT_EXTI_IRQn EXTI1_IRQn
+#define LEFT_Pin GPIO_PIN_4
+#define LEFT_GPIO_Port GPIOA
+#define LEFT_EXTI_IRQn EXTI4_IRQn
+#define UP_Pin GPIO_PIN_6
+#define UP_GPIO_Port GPIOA
+#define UP_EXTI_IRQn EXTI9_5_IRQn
 #define SD_Pin GPIO_PIN_10
 #define SD_GPIO_Port GPIOB
 #define SEL2_Pin GPIO_PIN_7
@@ -84,6 +96,8 @@ void Error_Handler(void);
 
 /* USER CODE BEGIN Private defines */
 
+void setPWM(uint16_t, uint16_t);
+void stopPWM();
 /* USER CODE END Private defines */
 
 #ifdef __cplusplus
