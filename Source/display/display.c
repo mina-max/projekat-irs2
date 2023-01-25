@@ -9,6 +9,7 @@
 #include "ssd1306.h"
 #include "FreeRTOSConfig.h"
 #include "FreeRTOS.h"
+#include "project-irs2.h"
 
 #define WIDTH 	127
 #define HEIGHT 	64
@@ -19,7 +20,6 @@ void display_welcome_screen()
 {
 	ssd1306_Fill(Black);
 	ssd1306_DrawBitmap(0, 0, snake_128x64, 128, 64, White);
-	//ssd1306_UpdateScreen();
 }
 
 void display_start_game_screen()
@@ -29,15 +29,69 @@ void display_start_game_screen()
 	ssd1306_WriteString("Press button", Font_7x10, White);
 	ssd1306_SetCursor(36, 32);
 	ssd1306_WriteString("to start", Font_7x10, White);
-	//ssd1306_UpdateScreen();
+}
+
+void display_game_over(bool new_highscore)
+{
+	ssd1306_Fill(Black);
+	ssd1306_SetCursor(30, 30);
+	ssd1306_WriteString("GAME OVER", Font_7x10, White);
+
+	ssd1306_SetCursor(5, 10);
+	ssd1306_WriteString("High ", Font_6x8, White);
+	ssd1306_SetCursor(35, 10);
+	uint8_t highscore = game_get_highscore();
+	if(game_get_highscore() > 9)
+	{
+		char str[3];
+		str[0] = highscore / 10 + 48;
+		str[1] = highscore % 10 + 48;
+		str[2] = 0;
+		ssd1306_WriteString(str, Font_6x8, White);
+	}
+	else
+	{
+		char str[2];
+		str[0] = highscore + 48;
+		str[1] = 0;
+		ssd1306_WriteString(str, Font_6x8, White);
+	}
+
+	ssd1306_SetCursor(80, 10);
+	ssd1306_WriteString("Score ", Font_6x8, White);
+	ssd1306_SetCursor(115, 10);
+	uint8_t score = game_get_score();
+	if(game_get_score() > 9)
+	{
+		char str[3];
+		str[0] = score / 10 + 48;
+		str[1] = score % 10 + 48;
+		str[2] = 0;
+		ssd1306_WriteString(str, Font_6x8, White);
+	}
+	else
+	{
+		char str[2];
+		str[0] = score + 48;
+		str[1] = 0;
+		ssd1306_WriteString(str, Font_6x8, White);
+	}
+
+	if(new_highscore)
+	{
+		ssd1306_SetCursor(25, 50);
+		ssd1306_WriteString("new highscore!", Font_6x8, White);
+	}
+
 }
 
 void display_draw_apple(grid_position_t* pos)
 {
-	uint8_t r = 3;
+	uint8_t r = 2;
 	uint8_t x = pos->x_block * GRID_SIZE + pos->x_block + 3;
-	uint8_t y = pos->y_block * GRID_SIZE + pos->y_block + 3;
+	uint8_t y = pos->y_block * GRID_SIZE + pos->y_block + 4;
 	ssd1306_DrawCircle(x, y, r, White);
+	ssd1306_Line(x, y - r - 2, x, y - r, White);
 }
 
 void display_draw_snake(bool grid, snake_t* snake)

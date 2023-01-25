@@ -52,6 +52,20 @@ static void generate_new_apple_block()
 	}
 }
 
+static void check_game_over()
+{
+	grid_position_t head = snake.body[0];
+	for(int i = 1; i < snake.body_size; i++)
+	{
+		if(head.x_block == snake.body[i].x_block &&
+			head.y_block == snake.body[i].y_block)
+		{
+			game_over();
+			return;
+		}
+	}
+}
+
 void move_snake()
 {
 	grid_position_t head = snake.body[0];
@@ -115,10 +129,21 @@ void move_snake()
 	}
 
 	snake.body[0] = head;
+
+	check_game_over();
 }
 
 void snake_change_direction(snake_directions_t direction)
 {
+	//Changing direction to opposite is not allowed
+	if((snake.direction == UP 	 && direction == DOWN) 	||
+	   (snake.direction == DOWN  && direction == UP) 	||
+	   (snake.direction == LEFT  && direction == RIGHT) ||
+	   (snake.direction == RIGHT && direction == LEFT))
+	{
+		return;
+	}
+
 	snake.direction = direction;
 }
 
@@ -130,4 +155,19 @@ snake_t* get_snake()
 grid_position_t* get_apple_position()
 {
 	return &apple_position;
+}
+
+void snake_reset()
+{
+	snake.direction = INITIAL_DIRECTION;
+	snake.body_size = INITIAL_SNAKE_BODY_SIZE;
+	snake.body[0].x_block = 9;
+	snake.body[0].y_block = 4;
+
+	snake.body[1].x_block = 10;
+	snake.body[1].y_block = 4;
+
+	snake.body[2].x_block = 11;
+	snake.body[2].y_block = 4;
+
 }

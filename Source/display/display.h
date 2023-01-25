@@ -15,6 +15,7 @@ void display_init(void);
 void display_update(void);
 void display_welcome_screen(void);
 void display_start_game_screen(void);
+void display_game_over(bool new_highscore);
 void display_draw_snake(bool grid, snake_t* snake);
 void display_draw_apple(grid_position_t* pos);
 

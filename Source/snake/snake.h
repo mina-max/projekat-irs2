@@ -40,5 +40,6 @@ void move_snake();
 void snake_change_direction(snake_directions_t direction);
 snake_t* get_snake();
 grid_position_t* get_apple_position();
+void snake_reset();
 
 #endif /* DISPLAY_SNAKE_H_ */

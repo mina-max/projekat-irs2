@@ -25,9 +25,9 @@ static void button_pressed_toggle_grid()
 	game_toogle_grid();
 }
 
-static void button_pressed_change_snake_direction()
+static void button_pressed_change_snake_direction(snake_directions_t direction)
 {
-
+	snake_change_direction(direction);
 }
 
 static void debouncing_timer_callback()
@@ -42,19 +42,19 @@ static void debouncing_timer_callback()
 	}
 	else if(pin == UP_Pin)
 	{
-		snake_change_direction(UP);
+		button_pressed_change_snake_direction(UP);
 	}
 	else if(pin == RIGHT_Pin)
 	{
-		snake_change_direction(RIGHT);
+		button_pressed_change_snake_direction(RIGHT);
 	}
 	else if(pin == DOWN_Pin)
 	{
-		snake_change_direction(DOWN);
+		button_pressed_change_snake_direction(DOWN);
 	}
 	else if(pin == LEFT_Pin)
 	{
-		snake_change_direction(LEFT);
+		button_pressed_change_snake_direction(LEFT);
 	}
 }
 
