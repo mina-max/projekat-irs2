@@ -10,10 +10,11 @@
 #include "timers.h"
 #include "stdbool.h"
 #include "snake.h"
+#include "project-irs2.h"
 
 static xTimerHandle debouncing_timer = NULL;
 
-uint16_t pin = 0;
+static bool debouncing_time_passed = true;
 
 static void button_pressed_start_game()
 {
@@ -31,6 +32,11 @@ static void button_pressed_change_snake_direction(snake_directions_t direction)
 }
 
 static void debouncing_timer_callback()
+{
+	debouncing_time_passed = true;
+}
+
+static void button_callback(uint16_t pin)
 {
 	if(pin == SW2_Pin)
 	{
@@ -60,14 +66,18 @@ static void debouncing_timer_callback()
 
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
-	pin = GPIO_Pin;
-	xTimerStartFromISR(debouncing_timer, 0);
+	if(debouncing_time_passed)
+	{
+		button_callback(GPIO_Pin);
+		debouncing_time_passed = false;
+		xTimerStartFromISR(debouncing_timer, 0);
+	}
 }
 
 void button_init()
 {
 	debouncing_timer = xTimerCreate((const char*) "debouncing_timer",
-			80 / portTICK_RATE_MS,
+			60 / portTICK_RATE_MS,
 			pdFALSE, (void*) 0, debouncing_timer_callback);
 
 }

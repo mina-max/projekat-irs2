@@ -10,6 +10,7 @@
 
 void project_main(void);
 void game_increase_score(void);
+void game_toogle_grid(void);
 uint8_t game_get_score(void);
 uint8_t game_get_highscore(void);
 void game_start(void);
